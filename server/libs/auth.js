@@ -1,14 +1,8 @@
 const Mcrypto = require('@arcblock/mcrypto');
 const MongoStorage = require('@arcblock/did-auth-storage-mongo');
 const GraphQLClient = require('@arcblock/graphql-client');
-const {
-  fromSecretKey,
-  WalletType
-} = require('@arcblock/forge-wallet');
-const {
-  Authenticator,
-  Handlers
-} = require('@arcblock/did-auth');
+const { fromSecretKey, WalletType } = require('@arcblock/forge-wallet');
+const { Authenticator, Handlers } = require('@arcblock/did-auth');
 
 const type = WalletType({
   role: Mcrypto.types.RoleType.ROLE_APPLICATION,
@@ -21,7 +15,7 @@ const chainHost = process.env.CHAIN_HOST;
 const chainId = process.env.CHAIN_ID;
 const client = new GraphQLClient({
   endpoint: chainHost,
-  chainId
+  chainId,
 });
 
 const authenticator = new Authenticator({

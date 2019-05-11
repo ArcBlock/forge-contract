@@ -1,4 +1,62 @@
-# Forge React Starter
+# Forge Contract
+
+Forge contract is to build decentralized contract that people can sign, view and trust. To protect the privacy, the content of the contract will not be hosted in the chain, only the hash of the content is store in the chain. We use [Forge React Stater](#about-forge-react-starter) to build this application and let it handle the basic logic like DID login, so that we can focus on building the core logic. The prototype of the flow of the app looks like this:
+
+![prototype](docs/prototype.jpg)
+
+## High level design
+
+## DB schema for contract
+
+For contract created by the user, we store it as the following schema in mongo:
+
+```javascript
+const ContractSchema = new mongoose.Schema({
+  // the did is calculated by sha3(concat(content, hash, signatures list without each sig))
+  did: { type: String, required: true, trim: true },
+  requester: {type: String, required: true, trim: true},
+  synopsis: { type: String, required: true, trim: true },
+  content: { type: Buffer, required: true },
+  hash: { type: String, required: true },
+  signatures: [{
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true },
+    signedAt: { type: Date },
+    signature: { type: Buffer }
+  }],
+  finished: { type: Boolean, default: false},
+  address: { type: String, default: '' },
+  createdAt: { type: Date },
+  updatedAt: { type: Date },
+});
+```
+
+## Asset Schema for CreateAssetTx protocol
+
+Once a doc is finished signing, we will send a CreateAssetTx to Forge, with its data like this:
+
+```proto
+message Signature {
+  string name = 1;
+  string email = 2;
+  google.protobuf.Timestamp signed_at = 3;
+  bytes signature = 4;
+}
+message Contract {
+  // did of the contract that stored in the forge contract app
+  string did = 1;
+  // hash of the original contract to be signed
+  string hash = 2;
+  // collected signature list
+  repeated Signature signatures = 3;
+}
+```
+
+
+
+
+
+## About Forge React Starter
 
 > Brings tons of thousands react libraries/components to dApps that run on [forge](https://www.arcblock.io/en/forge-sdk) powered blockchain.
 

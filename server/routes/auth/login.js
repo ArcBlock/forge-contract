@@ -5,26 +5,31 @@ module.exports = {
   claims: {
     profile() {
       return {
-        fields: ['fullName', 'email', 'phone'],
+        fields: ['Name', 'Email', 'Phone'],
         description: 'Please provide your email and name to continue',
       };
     },
   },
   onAuth: async ({ claims, did }) => {
+    console.log(claims);
     const profile = claims.find(x => x.type === 'profile');
     const exist = await User.findOne({ did });
     if (exist) {
-      console.log('new user', did, JSON.stringify(profile));
+      console.log('exist user', did, JSON.stringify(profile));
       exist.name = profile.fullName;
-      exist.email = profile.email;
+      exist.email = 'tyr.chen@gmail.com';
+      // FIXME: here email / phone doesn't exists
+      // exist.email = profile.email;
       exist.mobile = profile.mobile;
       await exist.save();
     } else {
-      console.log('exist user', did, JSON.stringify(profile));
+      console.log('new user', did, JSON.stringify(profile));
       const user = new User({
         did,
         name: profile.fullName,
-        email: profile.email,
+        // FIXME: here email / phone doesn't exists
+        // email: profile.email,
+        email: 'tyr.chen@gmail.com',
         mobile: profile.phone,
       });
       await user.save();
