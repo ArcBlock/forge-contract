@@ -15,10 +15,10 @@
   resolved "https://registry.npmjs.org/@arcblock/did-auth-storage/-/did-auth-storage-0.20.1.tgz#b0adbb64fdca53c6c2e36204a6ac029baf478e8a"
   integrity sha512-drKJDNYPIap9raOqLydwJ59IhniHHi8UpN1v1oLskp0bhMhdSe/0pdrrp/T193eOOSliZV6GUlXoFIghIL5lQA==
 
-"@arcblock/did-auth@latest":
-  version "0.26.0"
-  resolved "https://registry.npmjs.org/@arcblock/did-auth/-/did-auth-0.26.0.tgz#916c06e6bab37fee5b964869d3849e9c528913e9"
-  integrity sha512-jSnfzRfkZABpHFaPRzxYRFED+ZMXIMjCHHLIfd88U45URCqG7awlr/6iUap7cKPPKpiqYDMuqxuris4bmyvuBQ==
+"@arcblock/did-auth@0.26.7":
+  version "0.26.7"
+  resolved "https://registry.npmjs.org/@arcblock/did-auth/-/did-auth-0.26.7.tgz#d3131c6a5f21857e7c359281c433944385e10c20"
+  integrity sha512-4v8pJVJA1uemOQw54E83Zk6eIJM8njixa+Hfpq6AE3EaZAOAtfdGrQk3OGSU5CFNR+pTV6RWe04TN3XTyMK7aQ==
   dependencies:
     "@arcblock/did" "^0.26.0"
     "@arcblock/forge-util" "^0.26.0"

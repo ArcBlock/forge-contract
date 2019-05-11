@@ -16,7 +16,7 @@
     ]
   },
   "dependencies": {
-    "@arcblock/did-auth": "latest",
+    "@arcblock/did-auth": "0.26.7",
     "@arcblock/did-auth-storage-mongo": "latest",
     "@arcblock/forge-util": "latest",
     "@arcblock/forge-wallet": "latest",
