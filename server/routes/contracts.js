@@ -36,7 +36,7 @@ module.exports = {
       const hash = sha3(content_bin);
       const content_did = gen_contract_did(params.requester, hash, params.signatures);
 
-      const c = await Contract.find({ did: content_did });
+      const c = await Contract.findOne({ _id: content_did });
 
       if (c) {
         return res.status(422).json({});
@@ -45,7 +45,7 @@ module.exports = {
       console.log(hash);
       const now = new Date();
       const attrs = {
-        did: content_did,
+        _id: content_did,
         // requester: req.session.user.did,
         requester: 'did:abt:z1SoDc2qx1orSYFu3muXJfRdddsLHBT1SS3', // just to make my test easy
         synopsis: params.synopsis,

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ContractSchema = new mongoose.Schema({
   // the did is calculated by sha3(concat(content, hash, signatures list without each sig))
-  did: { type: String, required: true, trim: true },
+  _id: { type: String, required: true, trim: true },
   requester: { type: String, required: true, trim: true },
   synopsis: { type: String, required: true, trim: true },
   content: { type: Buffer, required: true },
