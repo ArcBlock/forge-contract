@@ -29,7 +29,7 @@ function send_one_email(from, to, subject, html) {
       html,
     };
     sendmail(email, (err, reply) => {
-      if (error) return rej(error);
+      if (err) return rej(err);
       return res(reply);
     });
   });
@@ -69,6 +69,7 @@ module.exports = {
       }
 
       const requester = req.session.user;
+      const signatures = params.signatures;
 
       console.log(hash);
       const now = new Date();
@@ -79,7 +80,7 @@ module.exports = {
         synopsis: params.synopsis,
         content: content_bin,
         hash,
-        signatures: params.signatures,
+        signatures,
         createdAt: now,
         updatedAt: now,
       };
@@ -87,8 +88,10 @@ module.exports = {
 
       await contract.save();
 
-      const html = get_html(content_bin, params.signatures);
-      await send_emails(requester.email, signatures.map(s => s.email), `Please sign:${params.synopsis}`, html);
+      const html = get_html(content_bin, signatures);
+      const recipients = signatures.map(v => v.email);
+      // await send_emails(requester.email, recipients, `Please sign:${params.synopsis}`, html);
+      await send_emails('tyr.chen@gmail.com', recipients, `Please sign:${params.synopsis}`, html);
       res.json(attrs);
     });
 
