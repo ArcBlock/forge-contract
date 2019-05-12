@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@arcblock/did": "^0.26.0",
-    "@arcblock/did-auth": "^0.26.8",
+    "@arcblock/did-auth": "^0.26.9",
     "@arcblock/did-auth-storage-mongo": "0.21.0",
     "@arcblock/did-util": "^0.26.5",
     "@arcblock/forge-util": "latest",
