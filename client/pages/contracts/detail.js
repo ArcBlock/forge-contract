@@ -5,13 +5,15 @@ import Cookie from 'js-cookie';
 import moment from 'moment';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import styled from 'styled-components';
+import { toDid } from '@arcblock/did';
 
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
-import Auth from '@arcblock/react-forge/lib/Auth';
+import DidAuth from '@arcblock/react-forge/lib/Auth';
+import DidAvatar from '@arcblock/react-forge/lib/Avatar';
 
 import Layout from '../../components/layout';
 import DidLink from '../../components/did_link';
@@ -94,6 +96,11 @@ export default function ContractDetail({ query }) {
                   dangerouslySetInnerHTML={{ __html: contract.value.content }}
                   style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
                 />
+                {contract.value.finished ? (
+                  <div className="stamp stamp-signed">signed</div>
+                ) : (
+                  <div className="stamp stamp-pending">pending</div>
+                )}
               </Paper>
             </div>
             <div className="summary">
@@ -108,6 +115,20 @@ export default function ContractDetail({ query }) {
                 {contract.value.signatures.map(x => (
                   // eslint-disable-next-line no-underscore-dangle
                   <Paper key={x._id} className="signer">
+                    {!!x.signer && (
+                      <React.Fragment>
+                        <DidAvatar did={toDid(x.signer)} size={144} />
+                        <div className="stamp stamp-signed">signed</div>
+                      </React.Fragment>
+                    )}
+                    {!x.signer && (
+                      <React.Fragment>
+                        <div className="stamp stamp-pending">pending</div>
+                      </React.Fragment>
+                    )}
+                    <Typography className="signer__did" component="p">
+                      {x.signer}
+                    </Typography>
                     <Typography className="signer__email" component="p" variant="h6">
                       {x.email}
                     </Typography>
@@ -127,7 +148,7 @@ export default function ContractDetail({ query }) {
             </div>
             {isAuthOpen && (
               <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={() => setAuthOpen(false)}>
-                <Auth
+                <DidAuth
                   action="agreement"
                   checkFn={api.get}
                   extraParams={query}
@@ -168,6 +189,37 @@ const Main = styled.main`
     white-space: pre;
   }
 
+  .stamp {
+    color: #555;
+    font-size: 3rem;
+    font-weight: 700;
+    border: 0.25rem solid #555;
+    display: inline-block;
+    padding: 0.25rem 1rem;
+    text-transform: uppercase;
+    border-radius: 1rem;
+    font-family: 'Courier';
+    -webkit-mask-image: url('/static/images/mask.png');
+    -webkit-mask-size: 944px 604px;
+    mix-blend-mode: multiply;
+  }
+
+  .stamp-signed {
+    color: #0a9928;
+    border: 0.5rem solid #0a9928;
+    -webkit-mask-position: 13rem 6rem;
+    border-radius: 0;
+  }
+
+  .stamp-pending {
+    color: #c4c4c4;
+    border: 1rem double #c4c4c4;
+    font-size: 6rem;
+    font-family: 'Open sans', Helvetica, Arial, sans-serif;
+    border-radius: 0;
+    padding: 0.5rem;
+  }
+
   .summary {
     width: 320px;
     flex-shrink: 0;
@@ -187,6 +239,27 @@ const Main = styled.main`
       padding: 24px;
       text-align: center;
       position: relative;
+      height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .stamp {
+        position: absolute;
+      }
+
+      .stamp-signed {
+        top: 0px;
+        right: -70px;
+        transform: rotate(45deg) scale(0.3);
+      }
+
+      .stamp-pending {
+        top: -36px;
+        right: -200px;
+        transform: rotate(45deg) scale(0.15);
+      }
 
       .signer__email {
       }
@@ -199,10 +272,27 @@ const Main = styled.main`
 
   .detail {
     flex-grow: 1;
+
     .content {
       padding: 32px;
       font-size: 1.2rem;
       text-align: left;
+      position: relative;
+      .stamp {
+        position: absolute;
+      }
+
+      .stamp-signed {
+        transform: rotate(45deg) scale(0.6);
+        top: 36px;
+        right: -30px;
+      }
+
+      .stamp-pending {
+        transform: rotate(45deg) scale(0.3);
+        top: 0;
+        right: -160px;
+      }
     }
   }
 `;
