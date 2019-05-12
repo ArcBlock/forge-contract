@@ -1,26 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import useAsync from 'react-use/lib/useAsync';
+import Cookie from 'js-cookie';
+import useAsyncFn from 'react-use/lib/useAsyncFn';
 import styled from 'styled-components';
 
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Layout from '../../components/layout';
+
+import useSession from '../../hooks/session';
 import api from '../../libs/api';
 
 export default function ContractDetail({ query }) {
-  const detail = useAsync(async () => {
+  const [isContractLoaded, setContractLoaded] = useState(false);
+  const session = useSession();
+  const [contract, fetchContract] = useAsyncFn(async () => {
     const res = await api.get(`/api/contracts/${query.id}`);
     if (res.status === 200) {
       res.data.content = Buffer.from(res.data.content, 'base64').toString('utf8');
       return res.data;
     }
 
-    throw new Error('Contract load failed');
-  });
+    throw new Error(res.data.error || 'Contract load failed');
+  }, [session.value]);
 
-  if (detail.loading || !detail.value) {
+  if (session.loading || !session.value) {
     return (
       <Layout title="Contract">
         <Main>
@@ -30,12 +35,23 @@ export default function ContractDetail({ query }) {
     );
   }
 
-  if (detail.error) {
+  if (session.error) {
     return (
       <Layout title="Contract">
-        <Main>{detail.error.message}</Main>
+        <Main>{session.error.message}</Main>
       </Layout>
     );
+  }
+
+  if (!session.value.user) {
+    Cookie.set('login_redirect', window.location.href);
+    window.location.href = '/?openLogin=true';
+    return null;
+  }
+
+  if (!isContractLoaded) {
+    fetchContract();
+    setContractLoaded(true);
   }
 
   return (
@@ -46,7 +62,7 @@ export default function ContractDetail({ query }) {
             Contract Detail
           </Typography>
           <pre>
-            <code>{JSON.stringify(detail.value, true, '  ')}</code>
+            <code>{JSON.stringify(contract.value, true, '  ')}</code>
           </pre>
         </div>
       </Main>
