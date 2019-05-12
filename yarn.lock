@@ -2,18 +2,18 @@
 # yarn lockfile v1
 
 
-"@arcblock/did-auth-storage-mongo@0.20.3":
-  version "0.20.3"
-  resolved "https://registry.npmjs.org/@arcblock/did-auth-storage-mongo/-/did-auth-storage-mongo-0.20.3.tgz#422358fc5c0a40b9cae5632861b2ebee36b21d2f"
-  integrity sha512-Gtn8410fF12PK8Glx3bYz4/719Dgd73c/JnIZ2lJzFCY8P7esKfJJH3iV0Nx4I4SzsN4K6n8J+tsFhGutSsX7A==
+"@arcblock/did-auth-storage-mongo@0.21.0":
+  version "0.21.0"
+  resolved "https://registry.npmjs.org/@arcblock/did-auth-storage-mongo/-/did-auth-storage-mongo-0.21.0.tgz#83bd8f959b81dfd0688c8ca9eaee93375be6eacd"
+  integrity sha512-1CSZ+MkYlEe+UBknG5xr0nxn0kGCOI4EJ6MByUlWxPUGc3cV5PwDVsoYidKILKOt0Ec5FSqvNwSx9Ae8d8EisA==
   dependencies:
-    "@arcblock/did-auth-storage" "^0.20.1"
+    "@arcblock/did-auth-storage" "^0.21.0"
     mongodb "3.1.13"
 
-"@arcblock/did-auth-storage@^0.20.1":
-  version "0.20.1"
-  resolved "https://registry.yarnpkg.com/@arcblock/did-auth-storage/-/did-auth-storage-0.20.1.tgz#b0adbb64fdca53c6c2e36204a6ac029baf478e8a"
-  integrity sha512-drKJDNYPIap9raOqLydwJ59IhniHHi8UpN1v1oLskp0bhMhdSe/0pdrrp/T193eOOSliZV6GUlXoFIghIL5lQA==
+"@arcblock/did-auth-storage@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.npmjs.org/@arcblock/did-auth-storage/-/did-auth-storage-0.21.0.tgz#73420d228e24b6b77a489c4f3ad7bba439838fb6"
+  integrity sha512-cGDrDiXwrL96qjb5/H3S///9NO7woMzZ7JD5yqBral3hRD9WT49hyyYBaYMFSyK78ongdDbRn4cO9gCX85NhGQ==
 
 "@arcblock/did-auth@latest":
   version "0.26.7"
