@@ -131,6 +131,9 @@ export default function ContractDetail({ query }) {
                       <React.Fragment>
                         <DidAvatar did={toDid(x.signer)} size={144} />
                         <div className="stamp stamp-signed">signed</div>
+                        <Typography className="signer__did" component="p">
+                          <DidLink did={x.signer} />
+                        </Typography>
                       </React.Fragment>
                     )}
                     {!x.signer && (
@@ -138,9 +141,6 @@ export default function ContractDetail({ query }) {
                         <div className="stamp stamp-pending">pending</div>
                       </React.Fragment>
                     )}
-                    <Typography className="signer__did" component="p">
-                      <DidLink did={x.signer} />
-                    </Typography>
                     <Typography className="signer__email" component="p" variant="h6">
                       {x.email}
                     </Typography>
