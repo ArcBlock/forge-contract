@@ -52,21 +52,14 @@ export default function Header() {
             {process.env.appName}
           </Typography>
         </Link>
-        {session.value && session.value.user && (
-          <React.Fragment>
-            <Button href="/profile" size="large">
-              Profile
-            </Button>
-            <Button href="/payment" size="large">
-              Payment
-            </Button>
-          </React.Fragment>
-        )}
+        <Button href="/contracts/create" size="large" color="secondary">
+          Create Contract
+        </Button>
+        <Button href="/profile" size="large">
+          Profile
+        </Button>
       </div>
       <div className="nav-right">
-        <Button href="https://github.com/ArcBlock/forge-react-starter" className="github" target="_blank">
-          GitHub
-        </Button>
         {session.loading && (
           <Button>
             <CircularProgress size={20} color="secondary" />
