@@ -2,8 +2,9 @@
 import React, { useEffect } from 'react';
 import qs from 'querystring';
 import styled from 'styled-components';
-import Link from 'next/link';
+import Cookie from 'js-cookie';
 import useToggle from 'react-use/lib/useToggle';
+import Link from 'next/link';
 
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,6 +16,15 @@ import UserAvatar from '@arcblock/react-forge/lib/Avatar';
 
 import useSession from '../hooks/session';
 import api from '../libs/api';
+
+function onLoginSuccess() {
+  const redirect = Cookie.get('login_redirect');
+  if (redirect) {
+    Cookie.remove('login_redirect');
+  }
+
+  window.location.href = redirect || '/profile';
+}
 
 export default function Header() {
   const session = useSession();
@@ -79,7 +89,7 @@ export default function Header() {
             action="login"
             checkFn={api.get}
             onClose={() => toggle()}
-            onSuccess={() => (window.location.href = '/profile')}
+            onSuccess={onLoginSuccess}
             messages={{
               title: 'login',
               scan: 'Scan QR code with ABT Wallet',

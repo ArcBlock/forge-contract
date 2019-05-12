@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import Cookie from 'js-cookie';
 import useAsync from 'react-use/lib/useAsync';
 import useToggle from 'react-use/lib/useToggle';
 
@@ -41,6 +42,7 @@ export default function PaymentPage() {
   }
 
   if (!state.value.session.user) {
+    Cookie.set('login_redirect', '/payment');
     window.location.href = '/?openLogin=true';
     return null;
   }
