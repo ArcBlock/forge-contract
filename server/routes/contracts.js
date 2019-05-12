@@ -27,9 +27,8 @@ module.exports = {
     app.put('/api/contracts', async (req, res) => {
       // we need a better auth module, for api it shall use the tokens taken from the http header (Authorization: bearer <token>)
 
-      const user = req.session.user;
-      console.log(user);
-      if (!user || !user.did) return res.status(403).json(null);
+      const requester = req.session.user;
+      if (!requester || !requester.did) return res.status(403).json(null);
 
       // need some basic param verification
 
@@ -47,7 +46,6 @@ module.exports = {
         return res.status(422).json(null);
       }
 
-      const requester = req.session.user;
       const { signatures, synopsis } = params;
 
       const now = new Date();
@@ -65,14 +63,17 @@ module.exports = {
 
       await contract.save();
 
-      const url = get_url(contract._id);
-      const recipients = signatures.map(v => v.email);
-      await send_emails(
-        requester.email,
-        recipients,
-        `${requester.name} requests you to sign a contract: ${synopsis}`,
-        url
-      );
+      if (process.env.EMAIL_ENABLED) {
+        // eslint-disable-next-line no-underscore-dangle
+        const url = get_url(contract._id);
+        const recipients = signatures.map(v => v.email);
+        await send_emails(
+          requester.email,
+          recipients,
+          `${requester.name} requests you to sign a contract: ${synopsis}`,
+          url
+        );
+      }
       res.json(attrs);
     });
 
