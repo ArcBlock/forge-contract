@@ -1,11 +1,12 @@
+/* eslint-disable camelcase */
 const mcrypto = require('@arcblock/mcrypto');
 const did = require('@arcblock/did');
+const sendmail = require('sendmail')({ silent: true });
 const { Contract } = require('../models');
 
 const types = mcrypto.types;
 
 const sha3 = mcrypto.getHasher(mcrypto.types.HashType.SHA3);
-const sendmail = require('sendmail')({ silent: true });
 
 function gen_contract_did(requester, content_hash, signatures) {
   const info = JSON.stringify(signatures.map(sig => ({ name: sig.name, email: sig.email })));
