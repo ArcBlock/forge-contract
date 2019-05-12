@@ -25,8 +25,7 @@ function range(length) {
 }
 
 let defaults = {
-  title: 'Test Contract title',
-  synopsis: 'Text Contract Summary',
+  synopsis: 'Test Contract Summary',
   content: `Test Contract Content: ${Date.now()}:${Math.random()}`,
   signers: ['shijun@arcblock.io', 'wangshijun2010@gmail.com'],
 };
@@ -101,23 +100,7 @@ export default function CreateContract() {
 
           <form className="form-body" onSubmit={handleSubmit(onSubmit)}>
             <TextField
-              label="Contract Name"
-              className="input input-title"
-              margin="normal"
-              variant="outlined"
-              fullWidth
-              error={errors.title && errors.title.message}
-              helperText={errors.title ? errors.title.message : ''}
-              inputRef={register({ required: 'Contract name is required' })}
-              InputProps={{
-                defaultValue: defaults.title,
-                type: 'text',
-                name: 'title',
-                placeholder: 'Employment contract',
-              }}
-            />
-            <TextField
-              label="Contract Description"
+              label="Contract Summary"
               className="input input-synopsis"
               margin="normal"
               variant="outlined"
@@ -181,10 +164,20 @@ export default function CreateContract() {
                 })}
               </div>
               <div className="signer-actions">
-                <IconButton type="button" size="small" onClick={() => setSignerCount(signerCount + 1)}>
+                <IconButton
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => setSignerCount(signerCount + 1)}>
                   <AddIcon />
                 </IconButton>
-                <IconButton type="button" size="small" onClick={() => setSignerCount(signerCount - 1)}>
+                <IconButton
+                  type="button"
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setSignerCount(signerCount - 1)}>
                   <DeleteIcon />
                 </IconButton>
               </div>
