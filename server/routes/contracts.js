@@ -60,9 +60,8 @@ module.exports = {
       const contract = new Contract(attrs);
       console.log('creating contract', attrs);
 
-      await contract.save();
-
-      if (process.env.EMAIL_ENABLED) {
+      if (Number(process.env.EMAIL_ENABLED)) {
+        console.log('sent email');
         // eslint-disable-next-line no-underscore-dangle
         const url = get_url(contract._id);
         const recipients = signatures.map(v => v.email);
@@ -72,8 +71,9 @@ module.exports = {
           `${requester.name} requests you to sign a contract: ${synopsis}`,
           url
         );
-        console.log('email sent');
       }
+
+      await contract.save();
 
       res.json(attrs);
     });

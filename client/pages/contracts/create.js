@@ -39,6 +39,7 @@ export default function CreateContract() {
 
   const onSubmit = async data => {
     setCreating(true);
+    setError('');
 
     try {
       data.content = Buffer.from(data.content).toString('base64');
