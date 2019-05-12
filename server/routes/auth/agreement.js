@@ -4,6 +4,7 @@ const multibase = require('multibase');
 const { toAddress } = require('@arcblock/did');
 const { toAssetAddress } = require('@arcblock/did-util');
 const { fromJSON } = require('@arcblock/forge-wallet');
+const { hexToBytes } = require('@arcblock/forge-util');
 
 const { wallet, client } = require('../../libs/auth');
 const { User, Contract } = require('../../models');
@@ -28,7 +29,7 @@ module.exports = {
         description: 'Please read the contract content carefully and agree to its terms',
         hash: {
           method: 'sha3',
-          digest: contract.hash,
+          digest: multibase.encode('base58btc', Buffer.from(hexToBytes(contract.hash))).toString(),
         },
       };
     },
@@ -55,10 +56,9 @@ module.exports = {
       throw new Error('You must agree with the terms to sign the contract');
     }
 
-    // FIXME: wallet should have signature on callback
-    // if (!agreement.sig) {
-    //   throw new Error('You must sign the contract hash to sign the contract');
-    // }
+    if (!agreement.sig) {
+      throw new Error('You must sign the contract hash to sign the contract');
+    }
 
     console.log('agreement.onAuth.payload', {
       contractId,
@@ -76,8 +76,7 @@ module.exports = {
       x.name = user.name;
       x.signer = toAddress(did);
       x.signedAt = new Date();
-      // FIXME: we should use wallet provided signature
-      x.signature = agreement.sig ? multibase.decode(agreement.sig) : fromJSON(wallet).sign(x._id.toString());
+      x.signature = multibase.decode(agreement.sig);
 
       return x;
     });
