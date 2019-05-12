@@ -75,7 +75,7 @@ export default function ProfilePage() {
     signed: [],
     pending: [],
   };
-  const { did, email, name = '-', mobile = '-' } = session.value.user;
+  const { did, email, name = '-' } = session.value.user;
   if (contracts.value) {
     grouped.created = contracts.value.filter(x => x.requester === did);
     grouped.signed = contracts.value.filter(x => x.finished && x.signatures.find(s => s.email === email));
@@ -97,9 +97,6 @@ export default function ProfilePage() {
               </ListItem>
               <ListItem className="profile-item">
                 <ListItemText primary={email || '-'} secondary="Email" />
-              </ListItem>
-              <ListItem className="profile-item">
-                <ListItemText primary={mobile || '-'} secondary="Phone" />
               </ListItem>
             </List>
           </div>
