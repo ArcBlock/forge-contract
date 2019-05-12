@@ -39,8 +39,9 @@ Once a doc is finished signing, we will send a CreateAssetTx to Forge, with its 
 message Signature {
   string name = 1;
   string email = 2;
-  google.protobuf.Timestamp signed_at = 3;
-  bytes signature = 4;
+  string signer = 3;
+  google.protobuf.Timestamp signed_at = 4;
+  bytes signature = 5;
 }
 message Contract {
   // did of the contract that stored in the forge contract app

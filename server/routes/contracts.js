@@ -29,10 +29,12 @@ function send_one_email(from, to, subject, html) {
       subject,
       html,
     };
-    sendmail(email, (err, reply) => {
-      if (err) return rej(err);
-      return res(reply);
-    });
+    res({});
+    // disable email for now
+    // sendmail(email, (err, reply) => {
+    //   if (err) return rej(err);
+    //   return res(reply);
+    // });
   });
 }
 
@@ -50,8 +52,9 @@ module.exports = {
     app.put('/api/contracts', async (req, res) => {
       // we need a better auth module, for api it shall use the tokens taken from the http header (Authorization: bearer <token>)
 
-      // user = req.session.user;
-      // if (!user || !user.did) return res.status(403).json({});
+      const user = req.session.user;
+      console.log(user);
+      if (!user || !user.did) return res.status(403).json(null);
 
       // need some basic param verification
 
@@ -66,18 +69,16 @@ module.exports = {
       const c = await Contract.findOne({ _id: content_did });
 
       if (c) {
-        return res.status(422).json({});
+        return res.status(422).json(null);
       }
 
       const requester = req.session.user;
       const signatures = params.signatures;
 
-      console.log(hash);
       const now = new Date();
       const attrs = {
         _id: content_did,
         requester: requester.did,
-        // requester: 'did:abt:z1SoDc2qx1orSYFu3muXJfRdddsLHBT1SS3', // just to make my test easy
         synopsis: params.synopsis,
         content: content_bin,
         hash,
@@ -91,8 +92,7 @@ module.exports = {
 
       const html = get_html(content_bin, signatures);
       const recipients = signatures.map(v => v.email);
-      // await send_emails(requester.email, recipients, `Please sign:${params.synopsis}`, html);
-      await send_emails('tyr.chen@gmail.com', recipients, `Please sign:${params.synopsis}`, html);
+      await send_emails(requester.email, recipients, `Please sign:${params.synopsis}`, html);
       res.json(attrs);
     });
 
