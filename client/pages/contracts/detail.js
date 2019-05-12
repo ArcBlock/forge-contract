@@ -9,6 +9,7 @@ import { toDid } from '@arcblock/did';
 
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
@@ -70,7 +71,7 @@ export default function ContractDetail({ query }) {
 
   return (
     <Layout title="Contract">
-      <Main>
+      <Main container spacing={40}>
         {(contract.loading || !contract.value) && <CircularProgress />}
         {contract.error && (
           <Typography component="p" color="secondary">
@@ -79,7 +80,7 @@ export default function ContractDetail({ query }) {
         )}
         {contract.value && (
           <React.Fragment>
-            <div className="detail">
+            <Grid item xs={8} sm={9} className="detail">
               <Typography component="h3" variant="h4" className="title">
                 {contract.value.synopsis}
               </Typography>
@@ -102,8 +103,8 @@ export default function ContractDetail({ query }) {
                   <div className="stamp stamp-pending">pending</div>
                 )}
               </Paper>
-            </div>
-            <div className="summary">
+            </Grid>
+            <Grid item xs={4} sm={3} className="summary">
               <Typography component="h3" variant="h4" className="title">
                 Contract Status
               </Typography>
@@ -145,7 +146,7 @@ export default function ContractDetail({ query }) {
                   </Paper>
                 ))}
               </div>
-            </div>
+            </Grid>
             {isAuthOpen && (
               <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={() => setAuthOpen(false)}>
                 <DidAuth
@@ -176,9 +177,10 @@ ContractDetail.propTypes = {
   query: PropTypes.object.isRequired,
 };
 
-const Main = styled.main`
-  margin: 80px 0;
-  display: flex;
+const Main = styled(Grid)`
+  && {
+    margin: 80px 0;
+  }
 
   .title {
     margin-bottom: 24px;
@@ -221,9 +223,6 @@ const Main = styled.main`
   }
 
   .summary {
-    width: 320px;
-    flex-shrink: 0;
-    margin-left: 50px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
