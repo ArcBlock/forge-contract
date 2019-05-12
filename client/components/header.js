@@ -2,9 +2,9 @@
 import React, { useEffect } from 'react';
 import qs from 'querystring';
 import styled from 'styled-components';
-import Link from 'next/link';
-import axios from 'axios';
+import Cookie from 'js-cookie';
 import useToggle from 'react-use/lib/useToggle';
+import Link from 'next/link';
 
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,6 +15,16 @@ import Auth from '@arcblock/react-forge/lib/Auth';
 import UserAvatar from '@arcblock/react-forge/lib/Avatar';
 
 import useSession from '../hooks/session';
+import api from '../libs/api';
+
+function onLoginSuccess() {
+  const redirect = Cookie.get('login_redirect');
+  if (redirect) {
+    Cookie.remove('login_redirect');
+  }
+
+  window.location.href = redirect || '/profile';
+}
 
 export default function Header() {
   const session = useSession();
@@ -35,46 +45,44 @@ export default function Header() {
 
   return (
     <Nav>
-      <div className="items">
+      <div className="nav-left">
         <Link href="/">
           <Typography variant="h6" color="inherit" noWrap className="brand">
             <img className="logo" src="/static/images/logo.png" alt="arcblock" />
             {process.env.appName}
           </Typography>
         </Link>
+        <Button href="/contracts/create" size="large" color="secondary">
+          Create Contract
+        </Button>
+        <Button href="/profile" size="large">
+          Profile
+        </Button>
+      </div>
+      <div className="nav-right">
+        {session.loading && (
+          <Button>
+            <CircularProgress size={20} color="secondary" />
+          </Button>
+        )}
+        {session.value && !session.value.user && (
+          <Button color="primary" variant="outlined" onClick={toggle}>
+            Login
+          </Button>
+        )}
         {session.value && session.value.user && (
-          <React.Fragment>
-            <Button href="/profile" size="large">
-              Profile
-            </Button>
-            <Button href="/payment" size="large">
-              Payment
-            </Button>
-          </React.Fragment>
+          <Button href="/profile" className="avatar">
+            <UserAvatar did={session.value.user.did} />
+          </Button>
         )}
       </div>
-      {session.loading && (
-        <Button>
-          <CircularProgress size={20} color="secondary" />
-        </Button>
-      )}
-      {session.value && !session.value.user && (
-        <Button color="primary" variant="outlined" onClick={toggle}>
-          Login
-        </Button>
-      )}
-      {session.value && session.value.user && (
-        <Button href="/profile" className="avatar">
-          <UserAvatar did={session.value.user.did} />
-        </Button>
-      )}
       {open && (
         <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={toggle}>
           <Auth
             action="login"
-            checkFn={axios.get}
+            checkFn={api.get}
             onClose={() => toggle()}
-            onSuccess={() => (window.location.href = '/profile')}
+            onSuccess={onLoginSuccess}
             messages={{
               title: 'login',
               scan: 'Scan QR code with ABT Wallet',
@@ -111,9 +119,19 @@ const Nav = styled(Toolbar)`
     }
   }
 
-  .items {
+  .nav-left {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .github {
+      margin-right: 16px;
+    }
   }
 `;

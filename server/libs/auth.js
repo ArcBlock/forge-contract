@@ -13,10 +13,7 @@ const type = WalletType({
 const wallet = fromSecretKey(process.env.APP_SK, type).toJSON();
 const chainHost = process.env.CHAIN_HOST;
 const chainId = process.env.CHAIN_ID;
-const client = new GraphQLClient({
-  endpoint: chainHost,
-  chainId,
-});
+const client = new GraphQLClient({ endpoint: chainHost, chainId });
 
 const authenticator = new Authenticator({
   client,
@@ -28,9 +25,9 @@ const authenticator = new Authenticator({
     chainToken: 'TBA',
     copyright: 'https://www.arcblock.io',
     decimals: 16,
-    name: 'Forge Contract',
-    subtitle: 'create, sign and view contracts with trust',
-    description: 'Decentralized contract system that allows people to sign and verify',
+    name: 'Forge React Starter',
+    subtitle: 'React starter project on forge',
+    description: 'Which demonstrates login/checkin/payment issue',
     icon: 'https://arcblock.oss-cn-beijing.aliyuncs.com/images/256x256.png',
     path: 'https://abtwallet.io/i/',
     publisher: `did:abt:${wallet.address}`,

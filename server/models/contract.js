@@ -9,7 +9,7 @@ const ContractSchema = new mongoose.Schema({
   hash: { type: String, required: true },
   signatures: [
     {
-      name: { type: String, required: true, trim: true },
+      name: { type: String, trim: true },
       email: { type: String, required: true, trim: true },
       signer: { type: String, trim: true },
       signedAt: { type: Date },

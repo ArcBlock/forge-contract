@@ -27,11 +27,15 @@ const theme = createMuiTheme({
     useNextVariants: true,
   },
   overrides: {
+    MuiButtonBase: {
+      root: {
+        boxShadow: 'none !important',
+      },
+    },
     MuiButton: {
       root: {
-        borderRadius: 0,
         letterSpacing: '1.5px',
-        boxShadow: 'none',
+        boxShadow: 'none !important',
       },
     },
   },

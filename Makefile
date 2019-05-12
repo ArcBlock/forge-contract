@@ -54,7 +54,6 @@ watch:
 
 run:
 	@echo "Running the software..."
-	@yarn start
 
 include .makefiles/*.mk
 

@@ -1,12 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-
-const routes = fs.readdirSync(__dirname).filter(x => x !== 'index.js');
+const session = require('./session');
+const users = require('./users');
+const payments = require('./payments');
+const contracts = require('./contracts');
+const auth = require('./auth');
 
 module.exports = app => {
-  routes.forEach(x => {
-    // eslint-disable-next-line
-    const route = require(path.join(__dirname, x));
-    route.init(app);
-  });
+  session.init(app);
+  users.init(app);
+  payments.init(app);
+  contracts.init(app);
+  auth.init(app);
 };

@@ -1,34 +1,36 @@
+/* eslint-disable no-console */
 const { User } = require('../../models');
 
 module.exports = {
   action: 'login',
   claims: {
-    profile() {
-      return {
-        fields: ['fullName', 'email', 'phone'],
-        description: 'Please provide your email and name to continue',
-      };
-    },
+    profile: () => ({
+      fields: ['fullName', 'email', 'phone'],
+      description: 'Please provide your email and name to continue',
+    }),
   },
   onAuth: async ({ claims, did }) => {
-    console.log(claims);
-    const profile = claims.find(x => x.type === 'profile');
-    const exist = await User.findOne({ did });
-    if (exist) {
-      console.log('exist user', did, JSON.stringify(profile));
-      exist.name = profile.fullName;
-      exist.email = profile.email;
-      exist.mobile = profile.phone;
-      await exist.save();
-    } else {
-      console.log('new user', did, JSON.stringify(profile));
-      const user = new User({
-        did,
-        name: profile.fullName,
-        email: profile.email,
-        mobile: profile.phone,
-      });
-      await user.save();
+    try {
+      const profile = claims.find(x => x.type === 'profile');
+      const exist = await User.findOne({ did });
+      if (exist) {
+        console.log('new user', did, JSON.stringify(profile));
+        exist.name = profile.fullName;
+        exist.email = profile.email;
+        exist.mobile = profile.mobile;
+        await exist.save();
+      } else {
+        console.log('exist user', did, JSON.stringify(profile));
+        const user = new User({
+          did,
+          name: profile.fullName,
+          email: profile.email,
+          mobile: profile.phone,
+        });
+        await user.save();
+      }
+    } catch (err) {
+      console.error('login.onAuth.error', err);
     }
   },
   onComplete: (req, { did }) =>
