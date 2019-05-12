@@ -20,7 +20,7 @@ function gen_contract_did(requester, content_hash, signatures) {
   return did.fromPublicKey(data, did_type);
 }
 
-const get_url = id => `${process.env.BASE_URL}/contracts/detail?id=${id}`;
+const get_url = contractId => `${process.env.BASE_URL}/contracts/detail?contractId=${contractId}`;
 
 module.exports = {
   init(app) {

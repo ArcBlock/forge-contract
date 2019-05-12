@@ -24,7 +24,7 @@ export default function ContractDetail({ query }) {
   const [isAuthOpen, setAuthOpen] = useState(false);
   const session = useSession();
   const [contract, fetchContract] = useAsyncFn(async () => {
-    const res = await api.get(`/api/contracts/${query.id}`);
+    const res = await api.get(`/api/contracts/${query.contractId}`);
     if (res.status === 200) {
       res.data.content = Buffer.from(res.data.content, 'base64')
         .toString('utf8')
@@ -130,6 +130,7 @@ export default function ContractDetail({ query }) {
                 <Auth
                   action="agreement"
                   checkFn={api.get}
+                  extraParams={query}
                   onClose={() => setAuthOpen(false)}
                   onSuccess={() => window.location.reload()}
                   messages={{
@@ -197,6 +198,7 @@ const Main = styled.main`
   }
 
   .detail {
+    flex-grow: 1;
     .content {
       padding: 32px;
       font-size: 1.2rem;

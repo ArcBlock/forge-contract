@@ -39,7 +39,7 @@ function ContractList({ contracts, timeFn, timeHeader, action, theme }) {
         )}
       </TableCell>
       <TableCell width="10%" align="center">
-        <Button href={`/contracts/detail?id=${contract._id}`} variant="outlined" size="small" color="primary">
+        <Button href={`/contracts/detail?contractId=${contract._id}`} variant="outlined" size="small" color="primary">
           {action}
         </Button>
       </TableCell>
