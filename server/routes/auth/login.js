@@ -5,7 +5,7 @@ module.exports = {
   claims: {
     profile() {
       return {
-        fields: ['Name', 'Email', 'Phone'],
+        fields: ['fullName', 'email', 'phone'],
         description: 'Please provide your email and name to continue',
       };
     },
@@ -17,19 +17,15 @@ module.exports = {
     if (exist) {
       console.log('exist user', did, JSON.stringify(profile));
       exist.name = profile.fullName;
-      exist.email = 'tyr.chen@gmail.com';
-      // FIXME: here email / phone doesn't exists
-      // exist.email = profile.email;
-      exist.mobile = profile.mobile;
+      exist.email = profile.email;
+      exist.mobile = profile.phone;
       await exist.save();
     } else {
       console.log('new user', did, JSON.stringify(profile));
       const user = new User({
         did,
         name: profile.fullName,
-        // FIXME: here email / phone doesn't exists
-        // email: profile.email,
-        email: 'tyr.chen@gmail.com',
+        email: profile.email,
         mobile: profile.phone,
       });
       await user.save();

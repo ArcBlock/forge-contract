@@ -5,6 +5,7 @@ const { Contract } = require('../models');
 const types = mcrypto.types;
 
 const sha3 = mcrypto.getHasher(mcrypto.types.HashType.SHA3);
+const sendmail = require('sendmail')({ silent: true });
 
 function gen_contract_did(requester, content_hash, signatures) {
   const info = JSON.stringify(signatures.map(sig => ({ name: sig.name, email: sig.email })));
@@ -18,13 +19,38 @@ function gen_contract_did(requester, content_hash, signatures) {
   return did.fromPublicKey(data, did_type);
 }
 
+function send_one_email(from, to, subject, html) {
+  return new Promise((res, rej) => {
+    const email = {
+      from,
+      to,
+      replyTo: from,
+      subject,
+      html,
+    };
+    sendmail(email, (err, reply) => {
+      if (error) return rej(error);
+      return res(reply);
+    });
+  });
+}
+
+function send_emails(from, recipients, subject, html) {
+  const all_emails = recipients.map(r => send_one_email(from, r, subject, html));
+  return Promise.all(all_emails);
+}
+
+function get_html(content_bin, signatures) {
+  return 'hello world!';
+}
+
 module.exports = {
   init(app) {
     app.put('/api/contracts', async (req, res) => {
       // we need a better auth module, for api it shall use the tokens taken from the http header (Authorization: bearer <token>)
 
       // user = req.session.user;
-      // if (!user || !user.did) return res.status(403);
+      // if (!user || !user.did) return res.status(403).json({});
 
       // need some basic param verification
 
@@ -42,11 +68,13 @@ module.exports = {
         return res.status(422).json({});
       }
 
+      const requester = req.session.user;
+
       console.log(hash);
       const now = new Date();
       const attrs = {
         _id: content_did,
-        // requester: req.session.user.did,
+        // requester: requester.did,
         requester: 'did:abt:z1SoDc2qx1orSYFu3muXJfRdddsLHBT1SS3', // just to make my test easy
         synopsis: params.synopsis,
         content: content_bin,
@@ -58,6 +86,9 @@ module.exports = {
       const contract = new Contract(attrs);
 
       await contract.save();
+
+      const html = get_html(content_bin, params.signatures);
+      await send_emails(requester.email, signatures.map(s => s.email), `Please sign:${params.synopsis}`, html);
       res.json(attrs);
     });
 
