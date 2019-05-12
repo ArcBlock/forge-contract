@@ -18,6 +18,7 @@ import Avatar from '@arcblock/react-forge/lib/Avatar';
 
 import Layout from '../components/layout';
 import ContractList from '../components/profile/contract_list';
+import DidLink from '../components/did_link';
 
 import useSession from '../hooks/session';
 import api from '../libs/api';
@@ -89,7 +90,7 @@ export default function ProfilePage() {
             <Avatar size={240} did={did} />
             <List>
               <ListItem className="profile-item">
-                <ListItemText primary={did.split(':').pop()} secondary="DID" />
+                <ListItemText primary={<DidLink did={did} />} secondary="DID" />
               </ListItem>
               <ListItem className="profile-item">
                 <ListItemText primary={name || '-'} secondary="Name" />
@@ -122,7 +123,7 @@ export default function ProfilePage() {
               label={
                 grouped.pending.length > 0 ? (
                   <Badge badgeContent={grouped.pending.length} color="secondary">
-                    <Typography component="span" style={{ padding: '0 16px' }}>
+                    <Typography component="span" style={{ padding: '0 10px' }}>
                       Pending for Sign
                     </Typography>
                   </Badge>

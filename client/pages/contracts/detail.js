@@ -6,11 +6,13 @@ import moment from 'moment';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import styled from 'styled-components';
 
+import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import Layout from '../../components/layout';
+import DidLink from '../../components/did_link';
 
 import useSession from '../../hooks/session';
 import api from '../../libs/api';
@@ -71,27 +73,48 @@ export default function ContractDetail({ query }) {
           </Typography>
         )}
         {contract.value && (
-          <div className="detail">
-            <Typography component="h3" variant="h4" className="title">
-              {contract.value.synopsis}
-            </Typography>
-            <Typography component="p" className="meta">
-              Created by <strong>{contract.value.requester}</strong> on{' '}
-              <strong>{moment(contract.value.createdAt).format('YYYY-MM-DD HH:mm')}</strong>
-            </Typography>
-            <Paper className="content">
-              <Typography
-                component="p"
-                dangerouslySetInnerHTML={{ __html: contract.value.content }}
-                style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
-              />
-            </Paper>
-            <div className="signers">
-              <pre>
-                <code>{JSON.stringify(contract.value.signatures, true, '  ')}</code>
-              </pre>
+          <React.Fragment>
+            <div className="summary">
+              <Typography component="h3" variant="h4" className="title">
+                Contract Status
+              </Typography>
+              <Typography component="p" variant="subheading" className="meta" gutterBottom>
+                <strong>{contract.value.signatures.filter(x => x.signature).length}</strong> of{' '}
+                <strong>{contract.value.signatures.length}</strong> have signed
+              </Typography>
+              <div className="signers">
+                {contract.value.signatures.map(x => (
+                  // eslint-disable-next-line no-underscore-dangle
+                  <Paper key={x._id} className="signer">
+                    <Typography className="signer__email" component="p" variant="h6">
+                      {x.email}
+                    </Typography>
+                    {session.value.user.email === x.email && !x.signature && (
+                      <Button variant="contained" className="signer__button" color="primary">
+                        Sign
+                      </Button>
+                    )}
+                  </Paper>
+                ))}
+              </div>
             </div>
-          </div>
+            <div className="detail">
+              <Typography component="h3" variant="h4" className="title">
+                {contract.value.synopsis}
+              </Typography>
+              <Typography component="p" variant="subheading" className="meta">
+                Created by <DidLink did={contract.value.requester} /> on{' '}
+                <strong>{moment(contract.value.createdAt).format('YYYY-MM-DD HH:mm')}</strong>
+              </Typography>
+              <Paper className="content">
+                <Typography
+                  component="p"
+                  dangerouslySetInnerHTML={{ __html: contract.value.content }}
+                  style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+                />
+              </Paper>
+            </div>
+          </React.Fragment>
         )}
       </Main>
     </Layout>
@@ -106,7 +129,7 @@ ContractDetail.propTypes = {
 
 const Main = styled.main`
   margin: 80px 0;
-  text-align: center;
+  display: flex;
 
   .title {
     margin-bottom: 24px;
@@ -116,14 +139,37 @@ const Main = styled.main`
     margin-bottom: 30px;
   }
 
-  .content {
-    padding: 32px;
-    font-size: 1.2rem;
-    max-width: 80%;
-    margin: 0 auto;
-    text-align: left;
+  .summary {
+    width: 320px;
+    flex-shrink: 0;
+    margin-right: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-center;
+    .signers {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .signer {
+      padding: 24px;
+      text-align: center;
+      position: relative;
+
+      .signer__email {
+      }
+
+      .signer__button {
+      }
+    }
   }
 
-  .signers {
+  .detail {
+    .content {
+      padding: 32px;
+      font-size: 1.2rem;
+      text-align: left;
+    }
   }
 `;
