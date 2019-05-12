@@ -240,6 +240,7 @@ const Main = styled.main`
       text-align: center;
       position: relative;
       height: 250px;
+      margin-bottom: 24px;
       display: flex;
       flex-direction: column;
       justify-content: center;
