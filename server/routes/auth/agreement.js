@@ -3,6 +3,7 @@ const qs = require('querystring');
 const multibase = require('multibase');
 const { toAddress } = require('@arcblock/did');
 const { toAssetAddress } = require('@arcblock/did-util');
+const { fromJSON } = require('@arcblock/forge-wallet');
 
 const { wallet, client } = require('../../libs/auth');
 const { User, Contract } = require('../../models');
@@ -76,7 +77,7 @@ module.exports = {
       x.signer = toAddress(did);
       x.signedAt = new Date();
       // FIXME: we should use wallet provided signature
-      x.signature = agreement.sig ? multibase.decode(agreement.sig) : wallet.sign(x._id.toString());
+      x.signature = agreement.sig ? multibase.decode(agreement.sig) : fromJSON(wallet).sign(x._id.toString());
 
       return x;
     });
@@ -106,7 +107,7 @@ module.exports = {
           },
         },
       };
-      contract.assetDid = toAssetAddress(asset, wallet.toAddress());
+      contract.assetDid = toAssetAddress(asset, wallet.address);
       asset.address = contract.assetDid;
       console.log('agreement.onAuth.makeAsset', asset);
 
@@ -115,7 +116,7 @@ module.exports = {
         tx: {
           itx: asset,
         },
-        wallet,
+        wallet: fromJSON(wallet),
       });
       console.log('agreement.onAuth.createAsset', tx);
     }
