@@ -112,11 +112,11 @@ export default function ContractDetail({ query }) {
               <Typography component="p" variant="subheading" className="meta" gutterBottom>
                 {contract.value.finished ? (
                   <AssetLink component={Button} did={contract.value.assetDid} variant="contained" color="primary">
-                    Inspect On Chain
+                    Inspect Contract On Chain
                   </AssetLink>
                 ) : (
                   <Button variant="contained" color="primary" disabled>
-                    Inspect On Chain
+                    Inspect Contract On Chain
                   </Button>
                 )}
                 <br />
