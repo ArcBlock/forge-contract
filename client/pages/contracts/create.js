@@ -4,6 +4,7 @@ import Cookie from 'js-cookie';
 // import useAsync from 'react-use/lib/useAsync';
 import useToggle from 'react-use/lib/useToggle';
 import useForm from 'react-hook-form';
+import isEmail from 'validator/lib/isEmail';
 
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -23,11 +24,24 @@ function range(length) {
   return Array.from({ length }, (_, k) => k + 1);
 }
 
+let defaults = {
+  title: 'Test Contract title',
+  synopsis: 'Text Contract Summary',
+  content: `Test Contract Content: ${Date.now()}:${Math.random()}`,
+  signers: ['shijun@arcblock.io', 'wangshijun2010@gmail.com'],
+};
+
+if (process.env.NODE_ENV === 'production') {
+  defaults = {};
+}
+
 export default function CreateContract() {
   const session = useSession();
   const { handleSubmit, register, errors } = useForm();
   const [signerCount, setSignerCount] = useState(2);
   const [open, toggle] = useToggle(false);
+
+  console.log(errors);
 
   const onSubmit = data => {
     console.log(JSON.stringify(data));
@@ -80,6 +94,11 @@ export default function CreateContract() {
           <Typography component="h3" variant="h4" className="form-header">
             Create New Contract
           </Typography>
+
+          <Typography component="h4" variant="h5" className="form-subheader">
+            Contract Info
+          </Typography>
+
           <form className="form-body" onSubmit={handleSubmit(onSubmit)}>
             <TextField
               label="Contract Name"
@@ -87,10 +106,11 @@ export default function CreateContract() {
               margin="normal"
               variant="outlined"
               fullWidth
-              error={!!errors.title}
-              helperText={errors.title || ''}
-              inputRef={register({ required: true })}
+              error={errors.title && errors.title.message}
+              helperText={errors.title ? errors.title.message : ''}
+              inputRef={register({ required: 'Contract name is required' })}
               InputProps={{
+                defaultValue: defaults.title,
                 type: 'text',
                 name: 'title',
                 placeholder: 'Employment contract',
@@ -102,10 +122,11 @@ export default function CreateContract() {
               margin="normal"
               variant="outlined"
               fullWidth
-              error={!!errors.synopsis}
-              helperText={errors.synopsis || ''}
-              inputRef={register({ required: true })}
+              error={errors.synopsis && errors.synopsis.message}
+              helperText={errors.synopsis ? errors.synopsis.message : ''}
+              inputRef={register({ required: 'Contract description is required' })}
               InputProps={{
+                defaultValue: defaults.synopsis,
                 type: 'text',
                 name: 'synopsis',
                 placeholder: 'Brief summary of the contract',
@@ -120,15 +141,20 @@ export default function CreateContract() {
               multiline
               rows={10}
               rowsMax={20}
-              error={!!errors.content}
-              inputRef={register({ required: true })}
-              helperText={errors.content || ''}
+              error={errors.content && errors.content.message}
+              inputRef={register({ required: 'Contract content cannot be empty' })}
+              helperText={errors.content ? errors.content.message : ''}
               InputProps={{
+                defaultValue: defaults.content,
                 type: 'textarea',
                 name: 'content',
                 placeholder: 'Pates the full text of the contract here',
               }}
             />
+
+            <Typography component="h4" variant="h5" className="form-subheader">
+              Contract Signers
+            </Typography>
 
             <div className="signers">
               <div className="signer-inputs">
@@ -137,15 +163,16 @@ export default function CreateContract() {
                   return (
                     <TextField
                       key={key}
-                      label="Signer Email"
+                      label={`Signer ${i}`}
                       className="input input-signer-email"
-                      placeholder="Signer Email"
+                      placeholder="Email to receive signing notification"
                       variant="outlined"
                       margin="normal"
-                      error={!!errors[key]}
-                      helperText={errors[key] || ''}
-                      inputRef={register({ required: true })}
+                      error={errors[key] && errors[key].message}
+                      helperText={errors[key] ? errors[key].message : ''}
+                      inputRef={register({ required: 'Email not valid', validate: isEmail })}
                       InputProps={{
+                        defaultValue: Array.isArray(defaults.signers) ? defaults.signers[i - 1] : undefined,
                         type: 'text',
                         name: key,
                       }}
@@ -182,6 +209,10 @@ const Main = styled.main`
     width: 100%;
   }
 
+  .form-subheader {
+    margin: 40px 0 8px;
+  }
+
   .form-body {
     max-width: 80%;
     display: flex;
@@ -201,6 +232,7 @@ const Main = styled.main`
 
     .input-signer-email {
       margin-right: 32px;
+      width: 240px;
     }
 
     .signer-actions {

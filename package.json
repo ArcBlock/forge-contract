@@ -62,7 +62,8 @@
     "react-use": "^8.4.0",
     "sendmail": "^1.4.1",
     "serverless-http": "^2.0.1",
-    "styled-components": "^4.2.0"
+    "styled-components": "^4.2.0",
+    "validator": "^10.11.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
