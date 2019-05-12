@@ -10,6 +10,8 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import Auth from '@arcblock/react-forge/lib/Auth';
 
 import Layout from '../../components/layout';
 import DidLink from '../../components/did_link';
@@ -19,6 +21,7 @@ import api from '../../libs/api';
 
 export default function ContractDetail({ query }) {
   const [isContractLoaded, setContractLoaded] = useState(false);
+  const [isAuthOpen, setAuthOpen] = useState(false);
   const session = useSession();
   const [contract, fetchContract] = useAsyncFn(async () => {
     const res = await api.get(`/api/contracts/${query.id}`);
@@ -74,6 +77,25 @@ export default function ContractDetail({ query }) {
         )}
         {contract.value && (
           <React.Fragment>
+            <div className="detail">
+              <Typography component="h3" variant="h4" className="title">
+                {contract.value.synopsis}
+              </Typography>
+              <Typography component="p" variant="subheading" className="meta">
+                Created by: <DidLink did={contract.value.requester} />
+                <br />
+                Created on: <strong>{moment(contract.value.createdAt).format('YYYY-MM-DD HH:mm')}</strong>
+                <br />
+                Content hash: <strong>{contract.value.hash}</strong>
+              </Typography>
+              <Paper className="content">
+                <Typography
+                  component="p"
+                  dangerouslySetInnerHTML={{ __html: contract.value.content }}
+                  style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+                />
+              </Paper>
+            </div>
             <div className="summary">
               <Typography component="h3" variant="h4" className="title">
                 Contract Status
@@ -90,30 +112,35 @@ export default function ContractDetail({ query }) {
                       {x.email}
                     </Typography>
                     {session.value.user.email === x.email && !x.signature && (
-                      <Button variant="contained" className="signer__button" color="primary">
-                        Sign
+                      <Button
+                        variant="contained"
+                        className="signer__button"
+                        color="primary"
+                        size="small"
+                        onClick={() => setAuthOpen(true)}>
+                        Sign Contract
                       </Button>
                     )}
                   </Paper>
                 ))}
               </div>
             </div>
-            <div className="detail">
-              <Typography component="h3" variant="h4" className="title">
-                {contract.value.synopsis}
-              </Typography>
-              <Typography component="p" variant="subheading" className="meta">
-                Created by <DidLink did={contract.value.requester} /> on{' '}
-                <strong>{moment(contract.value.createdAt).format('YYYY-MM-DD HH:mm')}</strong>
-              </Typography>
-              <Paper className="content">
-                <Typography
-                  component="p"
-                  dangerouslySetInnerHTML={{ __html: contract.value.content }}
-                  style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
+            {isAuthOpen && (
+              <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={() => setAuthOpen(false)}>
+                <Auth
+                  action="agreement"
+                  checkFn={api.get}
+                  onClose={() => setAuthOpen(false)}
+                  onSuccess={() => window.location.reload()}
+                  messages={{
+                    title: 'Sign Contract',
+                    scan: 'Scan the qrcode to sign this contract',
+                    confirm: 'Confirm your agreement on your ABT Wallet',
+                    success: 'You have successfully signed!',
+                  }}
                 />
-              </Paper>
-            </div>
+              </Dialog>
+            )}
           </React.Fragment>
         )}
       </Main>
@@ -137,19 +164,22 @@ const Main = styled.main`
 
   .meta {
     margin-bottom: 30px;
+    white-space: pre;
   }
 
   .summary {
     width: 320px;
     flex-shrink: 0;
-    margin-right: 50px;
+    margin-left: 50px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-center;
+
     .signers {
       display: flex;
       flex-direction: column;
+      margin-top: 56px;
     }
 
     .signer {
@@ -161,6 +191,7 @@ const Main = styled.main`
       }
 
       .signer__button {
+        margin-top: 16px;
       }
     }
   }
