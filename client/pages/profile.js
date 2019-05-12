@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import useAsyncFn from 'react-use/lib/useAsyncFn';
 import useToggle from 'react-use/lib/useToggle';
-import { fromUnitToToken } from '@arcblock/forge-util';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -16,27 +14,11 @@ import Avatar from '@arcblock/react-forge/lib/Avatar';
 
 import Layout from '../components/layout';
 import useSession from '../hooks/session';
-import forge from '../libs/forge';
 import api from '../libs/api';
 
 export default function ProfilePage() {
   const state = useSession();
-  const [isFetched, setFetched] = useToggle(false);
   const [isOpen, setOpen] = useToggle(false);
-  const [balance, fetchBalance] = useAsyncFn(async () => {
-    if (state.value && state.value.user) {
-      const address = state.value.user.did.replace(/^did:abt:/, '');
-      const [{ state: account }, { state: chain }] = await Promise.all([
-        forge.getAccountState({ address }),
-        forge.getForgeState({}, { ignoreFields: ['state.protocols'] }),
-      ]);
-
-      return {
-        account,
-        token: chain.token,
-      };
-    }
-  }, [state.value]);
 
   const onLogout = async () => {
     await api.post('/api/logout');
@@ -66,13 +48,6 @@ export default function ProfilePage() {
     return null;
   }
 
-  if (!isFetched) {
-    setTimeout(() => {
-      setFetched(true);
-      fetchBalance();
-    }, 100);
-  }
-
   return (
     <Layout title="Profile">
       <Main>
@@ -94,51 +69,30 @@ export default function ProfilePage() {
         )}
         <div className="avatar">
           <Avatar size={240} did={state.value.user.did} />
+          <div className="profile">
+            <Typography component="h3" variant="h4">
+              Profile
+            </Typography>
+            <List>
+              <ListItem className="profile-item">
+                <ListItemText primary={state.value.user.did} secondary="DID" />
+              </ListItem>
+              <ListItem className="profile-item">
+                <ListItemText primary={state.value.user.name || '-'} secondary="Name" />
+              </ListItem>
+              <ListItem className="profile-item">
+                <ListItemText primary={state.value.user.email || '-'} secondary="Email" />
+              </ListItem>
+              <ListItem className="profile-item">
+                <ListItemText primary={state.value.user.mobile || '-'} secondary="Phone" />
+              </ListItem>
+            </List>
+          </div>
           <Button color="secondary" variant="outlined" onClick={onLogout}>
             Logout
           </Button>
-          <Button color="primary" variant="outlined" href="/payment" style={{ marginTop: '30px' }}>
-            My Purchase
-          </Button>
-          {balance.value && balance.value.account && (
-            <Button color="primary" variant="contained" onClick={() => setOpen()} style={{ marginTop: '30px' }}>
-              Get 25 TBA
-            </Button>
-          )}
         </div>
-        <div className="meta">
-          <Typography component="h3" variant="h4">
-            My Profile
-          </Typography>
-          <List>
-            <ListItem className="meta-item">
-              <ListItemText primary={state.value.user.did} secondary="DID" />
-            </ListItem>
-            <ListItem className="meta-item">
-              <ListItemText primary={state.value.user.name || '-'} secondary="Name" />
-            </ListItem>
-            <ListItem className="meta-item">
-              <ListItemText primary={state.value.user.email || '-'} secondary="Email" />
-            </ListItem>
-            <ListItem className="meta-item">
-              <ListItemText primary={state.value.user.mobile || '-'} secondary="Phone" />
-            </ListItem>
-            <ListItem className="meta-item">
-              <ListItemText
-                primary={
-                  balance.value && balance.value.account && balance.value.token ? (
-                    `${fromUnitToToken(balance.value.account.balance, balance.value.token.decimal)} ${
-                      balance.value.token.symbol
-                    }`
-                  ) : (
-                    <CircularProgress size={18} />
-                  )
-                }
-                secondary="Account Balance"
-              />
-            </ListItem>
-          </List>
-        </div>
+        <div className="contracts">Created By Me/Signed By Me/Need my sign</div>
       </Main>
     </Layout>
   );
@@ -160,7 +114,7 @@ const Main = styled.main`
     }
   }
 
-  .meta {
+  .profile {
     display: flex;
     flex-grow: 1;
     flex-direction: column;
@@ -168,7 +122,10 @@ const Main = styled.main`
     align-items: flex-start;
   }
 
-  .meta-item {
+  .profile-item {
     padding-left: 0;
+  }
+
+  .contracts {
   }
 `;
