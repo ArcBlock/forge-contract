@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import useAsync from 'react-use/lib/useAsync';
 import styled from 'styled-components';
 
@@ -8,9 +9,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Layout from '../../components/layout';
 import api from '../../libs/api';
 
-export default function ContractDetail(props) {
+export default function ContractDetail({ query }) {
   const detail = useAsync(async () => {
-    const res = await api.get(`/api/contracts/${props.query.id}`);
+    const res = await api.get(`/api/contracts/${query.id}`);
     if (res.status === 200) {
       res.data.content = Buffer.from(res.data.content, 'base64').toString('utf8');
       return res.data;
@@ -54,6 +55,10 @@ export default function ContractDetail(props) {
 }
 
 ContractDetail.getInitialProps = ({ query }) => ({ query });
+
+ContractDetail.propTypes = {
+  query: PropTypes.object.isRequired,
+};
 
 const Main = styled.main`
   margin: 80px 0;
