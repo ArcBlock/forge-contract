@@ -145,6 +145,24 @@ And all the signers will go emails like this:
 
 ![Email content](docs/email.jpg)
 
+If you click the "View the Contract" button or the link, you will get:
+
+![Sign 1](docs/sign1.jpg)
+
+Then scan the QR code with the wallet app:
+
+![Sign 2](docs/sign2.jpg)
+
+Once accepted, the doc is signed:
+
+![Signed 1](docs/signed1.jpg)
+
+and then you can check it on the chain:
+
+![Signed 2](docs/signed2.jpg)
+
+
+
 Below is created by forge-react-starter. Leave it just for your information.
 
 ---
