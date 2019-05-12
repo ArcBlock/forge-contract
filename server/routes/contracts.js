@@ -55,7 +55,7 @@ module.exports = {
 
       // need some basic param verification
 
-      params = req.body;
+      const params = req.body;
       // in the form when it post the content it shall use Buffer.from(content).toString('base64'). This will
       // work for both text and later on pdf.
       const content_bin = Buffer.from(params.content, 'base64');
@@ -76,8 +76,8 @@ module.exports = {
       const now = new Date();
       const attrs = {
         _id: content_did,
-        // requester: requester.did,
-        requester: 'did:abt:z1SoDc2qx1orSYFu3muXJfRdddsLHBT1SS3', // just to make my test easy
+        requester: requester.did,
+        // requester: 'did:abt:z1SoDc2qx1orSYFu3muXJfRdddsLHBT1SS3', // just to make my test easy
         synopsis: params.synopsis,
         content: content_bin,
         hash,
@@ -100,6 +100,16 @@ module.exports = {
       console.log(req.session.user);
       const contracts = await Contract.find({ 'signatures.email': req.session.user.email });
       res.json(contracts ? contracts.map(c => c.toObject()) : []);
+    });
+
+    app.get('/api/contracts/:contractId', async (req, res) => {
+      try {
+        const contract = await Contract.findById(req.params.contractId);
+        res.json(contract);
+      } catch (err) {
+        console.error(err);
+        res.status(404).json(null);
+      }
     });
   },
 };

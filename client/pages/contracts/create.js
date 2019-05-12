@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Cookie from 'js-cookie';
-// import useAsync from 'react-use/lib/useAsync';
-import useToggle from 'react-use/lib/useToggle';
 import useForm from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
 
@@ -10,11 +8,9 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Auth from '@arcblock/react-forge/lib/Auth';
 
 import Layout from '../../components/layout';
 import useSession from '../../hooks/session';
@@ -38,12 +34,25 @@ export default function CreateContract() {
   const session = useSession();
   const { handleSubmit, register, errors } = useForm();
   const [signerCount, setSignerCount] = useState(2);
-  const [open, toggle] = useToggle(false);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState();
 
-  console.log(errors);
+  const onSubmit = async data => {
+    setCreating(true);
 
-  const onSubmit = data => {
-    console.log(JSON.stringify(data));
+    // Encode data before sending
+    data.content = Buffer.from(data.content).toString('base64');
+    data.signatures = data.signers.map(x => ({ email: x }));
+    const res = await api.put('/api/contracts', data);
+    console.log(res);
+
+    setCreating(false);
+    if (res.status === 200) {
+      // eslint-disable-next-line no-underscore-dangle
+      window.location.href = `/contracts/detail?id=${res.data._id}`;
+    } else {
+      setError('Error creating contract');
+    }
   };
 
   if (session.loading || !session.value) {
@@ -73,22 +82,6 @@ export default function CreateContract() {
   return (
     <Layout title="Create Contract">
       <Main>
-        {open && (
-          <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={() => toggle()}>
-            <Auth
-              action="payment"
-              checkFn={api.get}
-              onClose={() => toggle()}
-              onSuccess={() => window.location.reload()}
-              messages={{
-                title: 'Payment Required',
-                scan: 'Pay 5 TBA to view secret documented',
-                confirm: 'Confirm payment on your ABT Wallet',
-                success: 'You have successfully paid!',
-              }}
-            />
-          </Dialog>
-        )}
         <div className="form">
           <Typography component="h3" variant="h4" className="form-header">
             Create New Contract
@@ -109,6 +102,7 @@ export default function CreateContract() {
               helperText={errors.synopsis ? errors.synopsis.message : ''}
               inputRef={register({ required: 'Contract description is required' })}
               InputProps={{
+                disabled: creating,
                 defaultValue: defaults.synopsis,
                 type: 'text',
                 name: 'synopsis',
@@ -128,6 +122,7 @@ export default function CreateContract() {
               inputRef={register({ required: 'Contract content cannot be empty' })}
               helperText={errors.content ? errors.content.message : ''}
               InputProps={{
+                disabled: creating,
                 defaultValue: defaults.content,
                 type: 'textarea',
                 name: 'content',
@@ -155,6 +150,7 @@ export default function CreateContract() {
                       helperText={errors[key] ? errors[key].message : ''}
                       inputRef={register({ required: 'Email not valid', validate: isEmail })}
                       InputProps={{
+                        disabled: creating,
                         defaultValue: Array.isArray(defaults.signers) ? defaults.signers[i - 1] : undefined,
                         type: 'text',
                         name: key,
@@ -169,6 +165,7 @@ export default function CreateContract() {
                   size="small"
                   variant="outlined"
                   color="primary"
+                  disabled={creating}
                   onClick={() => setSignerCount(signerCount + 1)}>
                   <AddIcon />
                 </IconButton>
@@ -177,15 +174,17 @@ export default function CreateContract() {
                   size="small"
                   variant="outlined"
                   color="secondary"
+                  disabled={creating}
                   onClick={() => setSignerCount(signerCount - 1)}>
                   <DeleteIcon />
                 </IconButton>
               </div>
             </div>
 
-            <Button type="submit" size="large" variant="contained" color="primary">
-              Create Contract
+            <Button type="submit" size="large" variant="contained" color="primary" disabled={creating}>
+              {creating ? <CircularProgress size={24} /> : 'Create Contract'}
             </Button>
+            {!!error && <p className="error">{error}</p>}
           </form>
         </div>
       </Main>
@@ -233,5 +232,9 @@ const Main = styled.main`
     }
 
     margin-bottom: 50px;
+  }
+
+  .error {
+    color: ${props => props.theme.colors.red};
   }
 `;
