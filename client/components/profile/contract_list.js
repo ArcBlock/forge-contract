@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import Link from 'next/link';
 
 import Typography from '@material-ui/core/Typography';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,6 +11,7 @@ import Button from '@material-ui/core/Button';
 
 import EnhancedTable from './enhanced_table';
 
+// eslint-disable-next-line object-curly-newline
 export default function ContractList({ contracts, timeFn, timeHeader, action }) {
   const [page, setPage] = useState(0);
 
