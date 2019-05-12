@@ -14,7 +14,7 @@ The prototype of the flow of the app looks like this:
 
 ## Contract Templates
 
-[Accord Project](https://www.accordproject.org) is a great oprn source tool to generate legal contracts.  The ultimate goal is integrate this project with Accord [Legal Contract Template Studio](https://studio.accordproject.org).
+[Accord Project](https://www.accordproject.org) is a great open source tool to generate legal contracts.  The ultimate goal is integrate this project with Accord [Legal Contract Template Studio](https://studio.accordproject.org).
 
 ## Blockchain
 
