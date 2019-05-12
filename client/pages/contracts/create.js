@@ -49,7 +49,7 @@ export default function CreateContract() {
     setCreating(false);
     if (res.status === 200) {
       // eslint-disable-next-line no-underscore-dangle
-      window.location.href = `/contracts/detail?id=${res.data._id}`;
+      window.location.href = `/contracts/detail?contractId=${res.data._id}`;
     } else {
       setError('Error creating contract');
     }
