@@ -21,6 +21,7 @@ import DidLink from '../../components/did_link';
 
 import useSession from '../../hooks/session';
 import api from '../../libs/api';
+import AssetLink from '../../components/asset_link';
 
 export default function ContractDetail({ query }) {
   const [isContractLoaded, setContractLoaded] = useState(false);
@@ -109,6 +110,16 @@ export default function ContractDetail({ query }) {
                 Contract Status
               </Typography>
               <Typography component="p" variant="subheading" className="meta" gutterBottom>
+                {contract.value.finished ? (
+                  <AssetLink component={Button} did={contract.value.assetDid} variant="contained" color="primary">
+                    Inspect On Chain
+                  </AssetLink>
+                ) : (
+                  <Button variant="contained" color="primary" disabled>
+                    Inspect On Chain
+                  </Button>
+                )}
+                <br />
                 <strong>{contract.value.signatures.filter(x => x.signature).length}</strong> of{' '}
                 <strong>{contract.value.signatures.length}</strong> have signed
               </Typography>
@@ -128,7 +139,7 @@ export default function ContractDetail({ query }) {
                       </React.Fragment>
                     )}
                     <Typography className="signer__did" component="p">
-                      {x.signer}
+                      <DidLink did={x.signer} />
                     </Typography>
                     <Typography className="signer__email" component="p" variant="h6">
                       {x.email}
@@ -231,7 +242,7 @@ const Main = styled(Grid)`
     .signers {
       display: flex;
       flex-direction: column;
-      margin-top: 56px;
+      margin-top: 21px;
     }
 
     .signer {
@@ -261,7 +272,12 @@ const Main = styled(Grid)`
         transform: rotate(45deg) scale(0.15);
       }
 
-      .signer__email {
+      .signer__did {
+        font-size: 0.75rem;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: break-all;
       }
 
       .signer__button {
