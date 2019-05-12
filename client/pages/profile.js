@@ -80,7 +80,6 @@ export default function ProfilePage() {
     grouped.signed = contracts.value.filter(x => x.finished && x.signatures.find(s => s.email === email));
     grouped.pending = contracts.value.filter(x => !x.finished && x.signatures.find(s => s.email === email));
   }
-  console.log({ contracts: contracts.value, grouped });
 
   return (
     <Layout title="Profile">

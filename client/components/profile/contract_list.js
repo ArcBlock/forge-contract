@@ -10,7 +10,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import CheckIcon from '@material-ui/icons/CheckCircle';
-import WaitIcon from '@material-ui/icons/HourGlassFull';
+import WaitIcon from '@material-ui/icons/HourglassFull';
 
 import EnhancedTable from './enhanced_table';
 
