@@ -78,6 +78,7 @@ export default function Header() {
       {open && (
         <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={toggle}>
           <Auth
+            responsive
             action="login"
             checkFn={api.get}
             onClose={() => toggle()}

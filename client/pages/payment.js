@@ -53,6 +53,7 @@ export default function PaymentPage() {
         {open && (
           <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={() => toggle()}>
             <Auth
+              responsive
               action="payment"
               checkFn={api.get}
               onClose={() => toggle()}

@@ -33,7 +33,7 @@ module.exports = {
       console.error('login.onAuth.error', err);
     }
   },
-  onComplete: (req, { did }) =>
+  onComplete: ({ req, did }) =>
     // eslint-disable-next-line implicit-arrow-linebreak
     new Promise((resolve, reject) => {
       // TODO: old session info should be copied to new session
