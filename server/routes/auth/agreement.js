@@ -88,42 +88,47 @@ module.exports = {
     });
 
     if (contract.finished) {
-      contract.completedAt = new Date();
+      try {
+        contract.completedAt = new Date();
 
-      // Assemble asset
-      const asset = {
-        moniker: `block_contract_${contractId}`,
-        readonly: true,
-        transferrable: false,
-        data: {
-          typeUrl: 'json',
-          value: {
-            model: 'BlockContract',
-            hash: contract.hash,
-            contractId,
-            requester: toAddress(contract.requester),
-            signatures: contract.signatures,
+        // Assemble asset
+        const asset = {
+          moniker: `block_contract_${contractId}`,
+          readonly: true,
+          transferrable: false,
+          data: {
+            typeUrl: 'json',
+            value: {
+              model: 'BlockContract',
+              hash: contract.hash,
+              contractId,
+              requester: toAddress(contract.requester),
+              signatures: contract.signatures,
+            },
           },
-        },
-      };
-      contract.assetDid = toAssetAddress(asset, wallet.address);
-      asset.address = contract.assetDid;
-      console.log('agreement.onAuth.makeAsset', asset);
+        };
+        contract.assetDid = toAssetAddress(asset);
+        asset.address = contract.assetDid;
+        console.log('agreement.onAuth.makeAsset', asset);
 
-      // Create asset
-      const tx = await client.sendCreateAssetTx({
-        tx: {
-          itx: asset,
-        },
-        wallet: fromJSON(wallet),
-      });
-      console.log('agreement.onAuth.createAsset', tx);
+        // Create asset
+        const tx = await client.sendCreateAssetTx({
+          tx: {
+            itx: asset,
+          },
+          wallet: fromJSON(wallet),
+        });
+        console.log('agreement.onAuth.createAsset', tx);
+      } catch (err) {
+        console.error('contract finish error', err);
+        console.log(err.errors);
+      }
     }
 
     await contract.save();
     console.log('agreement.onAuth.success', { contractId, did });
   },
-  onComplete: (req, { did }, extraParams) => {
+  onComplete: ({ did, extraParams }) => {
     console.log('agreement.onComplete', { did, extraParams });
   },
 };
