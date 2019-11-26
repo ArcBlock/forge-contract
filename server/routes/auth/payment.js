@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-const multibase = require('multibase');
 const { fromTokenToUnit } = require('@arcblock/forge-util');
 const { fromAddress } = require('@arcblock/forge-wallet');
 const { Payment } = require('../../models');
@@ -22,12 +21,12 @@ module.exports = {
       description: 'Please pay 100 TBA to unlock the secret document',
     },
   },
-  onAuth: async ({ claims, did }) => {
-    console.log('pay.onAuth', { claims, did });
+  onAuth: async ({ claims, userDid }) => {
+    console.log('pay.onAuth', { claims, userDid });
     try {
       const claim = claims.find(x => x.type === 'signature');
-      const tx = client.decodeTx(multibase.decode(claim.origin));
-      const user = fromAddress(did);
+      const tx = client.decodeTx(claim.origin);
+      const user = fromAddress(userDid);
 
       const { hash } = await client.sendTransferTx({
         tx,
@@ -36,7 +35,7 @@ module.exports = {
       });
 
       const payment = new Payment({
-        did,
+        did: userDid,
         hash,
         status: 'confirmed',
       });
@@ -47,7 +46,7 @@ module.exports = {
       console.error('pay.onAuth.error', err);
     }
   },
-  onComplete: ({ did }) => {
-    console.log('pay.onComplete', { did });
+  onComplete: ({ userDid }) => {
+    console.log('pay.onComplete', { userDid });
   },
 };

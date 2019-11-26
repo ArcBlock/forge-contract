@@ -2,29 +2,19 @@
 import React, { useEffect } from 'react';
 import qs from 'querystring';
 import styled from 'styled-components';
-import Cookie from 'js-cookie';
 import useToggle from 'react-use/lib/useToggle';
-import Link from 'next/link';
 
-import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Dialog from '@material-ui/core/Dialog';
 import Auth from '@arcblock/did-react/lib/Auth';
 import UserAvatar from '@arcblock/did-react/lib/Avatar';
+import Button from '@arcblock/ux/lib/Button';
 
 import useSession from '../hooks/session';
 import api from '../libs/api';
-
-function onLoginSuccess() {
-  const redirect = Cookie.get('login_redirect');
-  if (redirect) {
-    Cookie.remove('login_redirect');
-  }
-
-  window.location.href = redirect || '/profile';
-}
+import env from '../libs/env';
+import { setToken, removeToken } from '../libs/auth';
 
 export default function Header() {
   const session = useSession();
@@ -41,24 +31,49 @@ export default function Header() {
         // Do nothing
       }
     }
+    // eslint-disable-next-line
   }, [session]);
+
+  const onLogin = async result => {
+    if (result.sessionToken) {
+      setToken(result.sessionToken);
+    }
+    window.location.href = '/profile';
+  };
+
+  const onLogout = () => {
+    removeToken();
+    window.location.reload();
+  };
 
   return (
     <Nav>
       <div className="nav-left">
-        <Link href="/">
-          <Typography variant="h6" color="inherit" noWrap className="brand">
-            {process.env.appName}
-          </Typography>
-        </Link>
-        <Button href="/contracts/create" size="large" color="secondary">
-          Create Contract
+        <Typography href="/" component="a" variant="h6" color="inherit" noWrap className="brand">
+          <img className="logo" src="/static/images/logo.png" alt="arcblock" />
+          {env.appName}
+        </Typography>
+        <Button href={env.chainHost.replace('/api', '/node/explorer/txs')} target="_blank" variant="h6" color="inherit">
+          Explorer
         </Button>
-        <Button href="/profile" size="large">
-          Profile
-        </Button>
+        {session.value && session.value.user && (
+          <React.Fragment>
+            <Button href="/contracts/create" size="large" color="secondary">
+              Create Contract
+            </Button>
+            <Button href="/profile" size="large">
+              Profile
+            </Button>
+            <Button size="large" color="danger" onClick={onLogout}>
+              Logout
+            </Button>
+          </React.Fragment>
+        )}
       </div>
       <div className="nav-right">
+        <Button href="https://github.com/ArcBlock/forge-dapp-starters" className="github" target="_blank">
+          GitHub
+        </Button>
         {session.loading && (
           <Button>
             <CircularProgress size={20} color="secondary" />
@@ -76,21 +91,19 @@ export default function Header() {
         )}
       </div>
       {open && (
-        <Dialog open maxWidth="sm" disableBackdropClick disableEscapeKeyDown onClose={toggle}>
-          <Auth
-            responsive
-            action="login"
-            checkFn={api.get}
-            onClose={() => toggle()}
-            onSuccess={onLoginSuccess}
-            messages={{
-              title: 'login',
-              scan: 'Scan QR code with ABT Wallet',
-              confirm: 'Confirm login on your ABT Wallet',
-              success: 'You have successfully signed in!',
-            }}
-          />
-        </Dialog>
+        <Auth
+          responsive
+          action="login"
+          checkFn={api.get}
+          onClose={() => toggle()}
+          onSuccess={onLogin}
+          messages={{
+            title: 'login',
+            scan: 'Scan QR code with ABT Wallet',
+            confirm: 'Confirm login on your ABT Wallet',
+            success: 'You have successfully signed in!',
+          }}
+        />
       )}
     </Nav>
   );

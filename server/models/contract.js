@@ -13,7 +13,7 @@ const ContractSchema = new mongoose.Schema({
       email: { type: String, required: true, trim: true },
       signer: { type: String, trim: true },
       signedAt: { type: Date },
-      signature: { type: Buffer },
+      signature: { type: String },
     },
   ],
   finished: { type: Boolean, default: false },

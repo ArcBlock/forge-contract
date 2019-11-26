@@ -13,8 +13,8 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
-import DidAuth from '@arcblock/react-forge/lib/Auth';
-import DidAvatar from '@arcblock/react-forge/lib/Avatar';
+import DidAuth from '@arcblock/did-react/lib/Auth';
+import DidAvatar from '@arcblock/did-react/lib/Avatar';
 
 import Layout from '../../components/layout';
 import DidLink from '../../components/did_link';
@@ -72,7 +72,7 @@ export default function ContractDetail({ query }) {
 
   return (
     <Layout title="Contract">
-      <Main container spacing={40}>
+      <Main container spacing={5}>
         {(contract.loading || !contract.value) && <CircularProgress />}
         {contract.error && (
           <Typography component="p" color="secondary">

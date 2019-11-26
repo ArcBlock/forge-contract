@@ -1,8 +1,8 @@
 const Mcrypto = require('@arcblock/mcrypto');
-const MongoStorage = require('@arcblock/did-auth-storage-mongo');
+const MongoAuthStorage = require('@arcblock/did-auth-storage-mongo');
 const GraphQLClient = require('@arcblock/graphql-client');
 const { fromSecretKey, WalletType } = require('@arcblock/forge-wallet');
-const { Authenticator, Handlers } = require('@arcblock/did-auth');
+const { WalletAuthenticator, WalletHandlers } = require('@arcblock/did-auth');
 
 const type = WalletType({
   role: Mcrypto.types.RoleType.ROLE_APPLICATION,
@@ -15,30 +15,26 @@ const chainHost = process.env.CHAIN_HOST;
 const chainId = process.env.CHAIN_ID;
 const client = new GraphQLClient({ endpoint: chainHost, chainId });
 
-const authenticator = new Authenticator({
+const authenticator = new WalletAuthenticator({
   client,
   wallet,
   baseUrl: process.env.BASE_URL,
   appInfo: {
-    chainHost,
-    chainId,
-    chainToken: 'TBA',
     copyright: 'https://www.arcblock.io',
-    decimals: 16,
     name: 'Block Contract',
     description: 'Multi-party contract signing application built on forge',
     icon: 'https://arcblock.oss-cn-beijing.aliyuncs.com/images/256x256.png',
-    path: 'https://abtwallet.io/i/',
-    publisher: `did:abt:${wallet.address}`,
+  },
+  chainInfo: {
+    host: chainHost,
+    id: chainId,
   },
 });
 
-const handlers = new Handlers({
+const handlers = new WalletHandlers({
   authenticator,
-  tokenGenerator: req => req.sessionID + Date.now(),
-  tokenStorage: new MongoStorage({
-    url: process.env.MONGO_URI,
-  }),
+  tokenGenerator: () => Date.now().toString(),
+  tokenStorage: new MongoAuthStorage({ url: process.env.MONGO_URI }),
 });
 
 module.exports = {

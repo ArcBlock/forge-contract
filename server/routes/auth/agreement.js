@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
-const qs = require('querystring');
-const multibase = require('multibase');
 const { toAddress } = require('@arcblock/did');
+const { JWT } = require('@arcblock/did-auth');
 const { toAssetAddress } = require('@arcblock/did-util');
 const { fromJSON } = require('@arcblock/forge-wallet');
-const { hexToBytes } = require('@arcblock/forge-util');
+const { fromBase58 } = require('@arcblock/forge-util');
 
 const { wallet, client } = require('../../libs/auth');
 const { User, Contract } = require('../../models');
@@ -12,7 +11,7 @@ const { User, Contract } = require('../../models');
 module.exports = {
   action: 'agreement',
   claims: {
-    agreement: async ({ extraParams }) => {
+    signature: async ({ extraParams }) => {
       console.log('agreement.start', extraParams);
       const { contractId } = extraParams || {};
       if (!contractId) {
@@ -25,17 +24,19 @@ module.exports = {
       }
 
       return {
-        uri: `${process.env.BASE_URL}/contracts/detail?${qs.stringify({ contractId })}`,
         description: 'Please read the contract content carefully and agree to its terms',
-        hash: {
-          method: 'sha3',
-          digest: multibase.encode('base58btc', Buffer.from(hexToBytes(contract.hash))).toString(),
-        },
+        data: JSON.stringify(
+          { hash: contract.hash, content: Buffer.from(contract.content, 'base64').toString() },
+          null,
+          2
+        ),
+        type: 'mime::text/plain',
       };
     },
   },
 
-  onAuth: async ({ claims, did, extraParams }) => {
+  onAuth: async ({ claims, userDid, userPk, extraParams }) => {
+    console.log('sign.onAuth', { claims, userDid, userPk });
     const { contractId } = extraParams || {};
     if (!contractId) {
       throw new Error('Cannot proceed with invalid contractId');
@@ -46,26 +47,22 @@ module.exports = {
       throw new Error('Cannot sign on invalid contract');
     }
 
-    const user = await User.findOne({ did });
+    const user = await User.findOne({ did: userDid });
     if (!user) {
       throw new Error('Cannot sign with unauthorized user');
     }
 
-    const agreement = claims.find(x => x.type === 'agreement');
-    if (agreement.agreed === false) {
+    const claim = claims.find(x => x.type === 'signature');
+    if (!claim.sig) {
       throw new Error('You must agree with the terms to sign the contract');
     }
 
-    if (!agreement.sig) {
-      throw new Error('You must sign the contract hash to sign the contract');
-    }
-
-    console.log('agreement.onAuth.payload', {
+    console.log('contract.onAuth.payload', {
       contractId,
       contract: contract.toJSON(),
       user: user.toJSON(),
-      agreement,
-      did,
+      claim,
+      userDid,
     });
 
     contract.signatures = contract.signatures.map(x => {
@@ -74,9 +71,9 @@ module.exports = {
       }
 
       x.name = user.name;
-      x.signer = toAddress(did);
+      x.signer = toAddress(userDid);
       x.signedAt = new Date();
-      x.signature = multibase.decode(agreement.sig);
+      x.signature = claim.sig;
 
       return x;
     });
@@ -126,9 +123,9 @@ module.exports = {
     }
 
     await contract.save();
-    console.log('agreement.onAuth.success', { contractId, did });
+    console.log('agreement.onAuth.success', { contractId, userDid });
   },
-  onComplete: ({ did, extraParams }) => {
-    console.log('agreement.onComplete', { did, extraParams });
+  onComplete: ({ userDid, extraParams }) => {
+    console.log('agreement.onComplete', { userDid, extraParams });
   },
 };

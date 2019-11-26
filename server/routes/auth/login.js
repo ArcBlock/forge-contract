@@ -1,57 +1,53 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable no-console */
+const env = require('../../libs/env');
 const { User } = require('../../models');
+const { login } = require('../../libs/jwt');
+
+const description = {
+  en: `Login ${env.appName} with your ABT Wallet`,
+  zh: `用 ABT 钱包登录 ${env.appName}`,
+};
 
 module.exports = {
   action: 'login',
   claims: {
-    profile: () => ({
+    profile: ({ extraParams: { locale } }) => ({
       fields: ['fullName', 'email'],
-      description: 'Please provide your email and name to continue',
+      description: description[locale] || description.en,
     }),
   },
-  onAuth: async ({ claims, did }) => {
+  onAuth: async ({ claims, userDid, token, storage }) => {
     try {
       const profile = claims.find(x => x.type === 'profile');
-      const exist = await User.findOne({ did });
+      const exist = await User.findOne({ did: userDid });
       if (exist) {
-        console.log('new user', did, JSON.stringify(profile));
+        console.log('update user', userDid, JSON.stringify(profile));
         exist.name = profile.fullName;
         exist.email = profile.email;
-        exist.mobile = profile.mobile;
         await exist.save();
       } else {
-        console.log('exist user', did, JSON.stringify(profile));
+        console.log('create user', userDid, JSON.stringify(profile));
         const user = new User({
-          did,
+          did: userDid,
           name: profile.fullName,
           email: profile.email,
-          mobile: profile.phone,
         });
         await user.save();
       }
+
+      // Generate new session token that client can save to localStorage
+      const sessionToken = await login(userDid);
+      await storage.update(token, { did: userDid, sessionToken });
+      console.error('login.onAuth.login', { userDid, sessionToken });
+
+      return {
+        callbackParams: {
+          loginToken: sessionToken,
+        },
+      };
     } catch (err) {
       console.error('login.onAuth.error', err);
     }
   },
-  onComplete: ({ req, did }) =>
-    // eslint-disable-next-line implicit-arrow-linebreak
-    new Promise((resolve, reject) => {
-      // TODO: old session info should be copied to new session
-      req.session.regenerate(async err => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        const user = await User.findOne({ did });
-        if (!user) {
-          reject(new Error(`User with ${did} did does not exist`));
-          return;
-        }
-
-        // Populate user to session
-        req.session.user = user.toObject();
-        resolve(req.session);
-      });
-    }),
 };

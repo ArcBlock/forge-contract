@@ -25,7 +25,7 @@ module.exports = {
     app.put('/api/contracts', async (req, res) => {
       // we need a better auth module, for api it shall use the tokens taken from the http header (Authorization: bearer <token>)
 
-      const requester = req.session.user;
+      const requester = req.user;
       if (!requester || !requester.did) return res.status(403).json({ error: 'Login required to create contract' });
 
       // need some basic param verification
@@ -79,14 +79,14 @@ module.exports = {
     });
 
     app.get('/api/contracts', async (req, res) => {
-      if (!req.session.user) {
+      if (!req.user) {
         res.status(403).json({ error: 'Login required' });
         return;
       }
 
       try {
         const contracts = await Contract.find({
-          $or: [{ 'signatures.email': req.session.user.email }, { requester: req.session.user.did }],
+          $or: [{ 'signatures.email': req.user.email }, { requester: req.user.did }],
         });
         res.json(contracts ? contracts.map(c => c.toObject()) : []);
       } catch (err) {
@@ -96,7 +96,7 @@ module.exports = {
     });
 
     app.get('/api/contracts/:contractId', async (req, res) => {
-      if (!req.session.user) {
+      if (!req.user) {
         res.status(403).json({ error: 'Login required' });
         return;
       }
@@ -105,8 +105,8 @@ module.exports = {
         const contract = await Contract.findById(req.params.contractId);
         // only signer and requester can view this contract
         if (contract) {
-          const isRequester = contract.requester === req.session.user.did;
-          const isSigner = contract.signatures.find(x => x.email === req.session.user.email);
+          const isRequester = contract.requester === req.user.did;
+          const isSigner = contract.signatures.find(x => x.email === req.user.email);
           if (isRequester || isSigner) {
             res.json(contract);
           } else {

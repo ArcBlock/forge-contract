@@ -1,7 +1,6 @@
 /* eslint-disable object-curly-newline */
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Cookie from 'js-cookie';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
 import SwipeableViews from 'react-swipeable-views';
@@ -15,7 +14,7 @@ import Button from '@material-ui/core/Button';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Avatar from '@arcblock/react-forge/lib/Avatar';
+import Avatar from '@arcblock/did-react/lib/Avatar';
 
 import Layout from '../components/layout';
 import ContractList from '../components/profile/contract_list';
@@ -23,6 +22,7 @@ import DidLink from '../components/did_link';
 
 import useSession from '../hooks/session';
 import api from '../libs/api';
+import { removeToken } from '../libs/auth';
 
 export default function ProfilePage() {
   const [category, setCategory] = useState(0);
@@ -61,7 +61,7 @@ export default function ProfilePage() {
   }
 
   if (!session.value.user) {
-    Cookie.set('login_redirect', window.location.href);
+    removeToken();
     window.location.href = '/?openLogin=true';
     return null;
   }

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Helmet from 'react-helmet';
 
 import Wrapper from './wrapper';
-import Header from './header';
+import Header from './header_new';
 
 export default function Layout({ title, children, contentOnly }) {
   if (contentOnly) {

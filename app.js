@@ -4,15 +4,15 @@ require('dotenv').config();
 
 const cors = require('cors');
 const path = require('path');
-const next = require('next');
+const nextApp = require('next');
 const morgan = require('morgan');
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const bearerToken = require('express-bearer-token');
 
+const { decode } = require('./server/libs/jwt');
 const { name, version } = require('./package.json');
 
 const dev = process.env.NODE_ENV !== 'production';
@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
 mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // Create next.js application
-const app = next({
+const app = nextApp({
   dev,
   dir: path.join(__dirname, './client'),
 });
@@ -42,14 +42,24 @@ app.prepare().then(() => {
   server.use(bodyParser.urlencoded({ extended: true }));
   server.use(cors());
   server.use(morgan(dev ? 'tiny' : 'combined'));
-  server.use(
-    session({
-      resave: false,
-      saveUninitialized: true,
-      secret: process.env.COOKIE_SECRET,
-      store: new MongoStore({ mongooseConnection: mongoose.connection }),
-    })
-  );
+
+  server.use(bearerToken());
+  server.use((req, res, next) => {
+    if (!req.token) {
+      next();
+      return;
+    }
+
+    decode(req.token)
+      .then(user => {
+        req.user = user;
+        next();
+      })
+      .catch(err => {
+        console.error('session.deserialize.error', err.message);
+        next();
+      });
+  });
 
   // eslint-disable-next-line global-require
   require('./server/routes')(server);

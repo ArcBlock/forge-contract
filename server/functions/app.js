@@ -4,14 +4,14 @@ const morgan = require('morgan');
 const express = require('express');
 const serverless = require('serverless-http');
 const mongoose = require('mongoose');
-const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const MongoStore = require('connect-mongo')(session);
+const bearerToken = require('express-bearer-token');
 
 // ------------------------------------------------------------------------------
 // Routes: due to limitations of netlify functions, we need to import routes here
 // ------------------------------------------------------------------------------
+const { decode } = require('../libs/jwt');
 const { handlers } = require('../libs/auth');
 const loginAuth = require('../routes/auth/login');
 const paymentAuth = require('../routes/auth/payment');
@@ -54,14 +54,25 @@ server.use(
   })
 );
 
-server.use(
-  session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET,
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
-  })
-);
+server.use(bearerToken());
+server.use((req, res, next) => {
+  console.log('req.token', req.token);
+  if (!req.token) {
+    next();
+    return;
+  }
+
+  decode(req.token)
+    .then(user => {
+      console.log('req.user', req.user);
+      req.user = user;
+      next();
+    })
+    .catch(err => {
+      console.error('session.deserialize.error', err.message);
+      next();
+    });
+});
 
 const router = express.Router();
 
