@@ -10,6 +10,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const compression = require('compression');
 const bearerToken = require('express-bearer-token');
 
 const { decode } = require('./server/libs/jwt');
@@ -64,6 +65,7 @@ app.prepare().then(() => {
   // eslint-disable-next-line global-require
   require('./server/routes')(server);
 
+  server.use(compression());
   server.get('*', (req, res) => handle(req, res));
 
   const port = parseInt(process.env.PORT, 10) || parseInt(process.env.APP_PORT, 10) || 3000;
